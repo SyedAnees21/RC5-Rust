@@ -1,6 +1,6 @@
 use std::array::from_fn;
 
-use rand::{Rng, thread_rng};
+use rand::thread_rng;
 
 use crate::{Reason, Word};
 
@@ -22,15 +22,12 @@ where
     from_fn(|_| W::random(&mut rng))
 }
 
-pub fn random_nonce_and_counter<W, const N: usize>() -> [W; N]
+pub fn random_nonce_and_counter<W>() -> (W, W)
 where
     W: Word,
 {
     let mut rng = thread_rng();
-    from_fn(|i| match i {
-        n if n == N - 1 => W::ZERO,
-        _ => W::random(&mut rng),
-    })
+    (W::random(&mut rng), W::ZERO)
 }
 
 pub fn pkcs7(buf: &mut Vec<u8>, bs: usize, pad: bool) -> Result<usize, Reason> {

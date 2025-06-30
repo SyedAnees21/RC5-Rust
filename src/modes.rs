@@ -1,3 +1,5 @@
+use std::iter::Enumerate;
+
 use crate::{BlockCipher, Word};
 
 pub enum OperationMode<W: Word, const N: usize> {
@@ -17,7 +19,7 @@ where
     input_blocks
         .iter()
         .map(|block| control_block.encrypt(*block))
-        .collect::<Vec<_>>()
+        .collect()
 }
 
 pub fn ecb_decrypt<C, W, const N: usize>(
@@ -31,7 +33,7 @@ where
     input_blocks
         .iter()
         .map(|block| control_block.decrypt(*block))
-        .collect::<Vec<_>>()
+        .collect()
 }
 
 pub fn cbc_encrypt<C, W, const N: usize>(
@@ -56,7 +58,7 @@ where
 
             ct
         })
-        .collect::<Vec<_>>()
+        .collect()
 }
 
 pub fn cbc_decrypt<C, W, const N: usize>(
@@ -81,5 +83,53 @@ where
             prev = *block;
             decrypted
         })
-        .collect::<Vec<_>>()
+        .collect()
+}
+
+pub fn ctr_encrypt<C, W, const N: usize>(
+    control_block: &C,
+    mut nonce_and_counter: [W; N],
+    input_blocks: Vec<[W; N]>,
+) -> Vec<[W; N]>
+where
+    C: BlockCipher<W, N>,
+    W: Word,
+{
+    input_blocks
+        .into_iter()
+        .map(|input_block| {
+            let mut encrypted = control_block.encrypt(nonce_and_counter);
+            encrypted
+                .iter_mut()
+                .enumerate()
+                .for_each(|(ix, block)| *block = input_block[ix] ^ *block);
+
+            nonce_and_counter[N - 1] = nonce_and_counter[N - 1].wrapping_add(W::from_u8(1));
+            encrypted
+        })
+        .collect()
+}
+
+pub fn ctr_decrypt<C, W, const N: usize>(
+    control_block: &C,
+    mut nonce_and_counter: [W; N],
+    input_blocks: Vec<[W; N]>,
+) -> Vec<[W; N]>
+where
+    C: BlockCipher<W, N>,
+    W: Word,
+{
+    input_blocks
+        .into_iter()
+        .map(|input_block| {
+            let mut decrypted = control_block.decrypt(nonce_and_counter);
+            decrypted
+                .iter_mut()
+                .enumerate()
+                .for_each(|(ix, block)| *block = input_block[ix] ^ *block);
+
+            nonce_and_counter[N - 1] = nonce_and_counter[N - 1].wrapping_add(W::from_u8(1));
+            decrypted
+        })
+        .collect()
 }

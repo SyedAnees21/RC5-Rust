@@ -89,47 +89,37 @@ where
 pub fn ctr_encrypt<C, W, const N: usize>(
     control_block: &C,
     mut nonce_and_counter: [W; N],
-    input_blocks: Vec<[W; N]>,
-) -> Vec<[W; N]>
+    input_stream: &[u8],
+) -> Vec<u8>
 where
     C: BlockCipher<W, N>,
     W: Word,
 {
-    input_blocks
-        .into_iter()
-        .map(|input_block| {
-            let mut encrypted = control_block.encrypt(nonce_and_counter);
-            encrypted
-                .iter_mut()
-                .enumerate()
-                .for_each(|(ix, block)| *block = input_block[ix] ^ *block);
+    let mut ciphered_stream = vec![];
 
-            nonce_and_counter[N - 1] = nonce_and_counter[N - 1].wrapping_add(W::from_u8(1));
-            encrypted
-        })
-        .collect()
+    for input_chunk in input_stream.chunks(control_block.block_size()) {
+        let encrypted = control_block.encrypt(nonce_and_counter);
+        let key_stream = encrypted
+            .iter()
+            .flat_map(|word| word.to_bytes_slice())
+            .collect::<Vec<_>>();
+
+        for (ix, input) in input_chunk.iter().enumerate() {
+            ciphered_stream.push(*input ^ key_stream[ix]);
+        }
+        nonce_and_counter[N - 1] = nonce_and_counter[N - 1].wrapping_add(W::from_u8(1));
+    }
+    ciphered_stream
 }
 
 pub fn ctr_decrypt<C, W, const N: usize>(
     control_block: &C,
-    mut nonce_and_counter: [W; N],
-    input_blocks: Vec<[W; N]>,
-) -> Vec<[W; N]>
+    nonce_and_counter: [W; N],
+    input_blocks: &[u8],
+) -> Vec<u8>
 where
     C: BlockCipher<W, N>,
     W: Word,
 {
-    input_blocks
-        .into_iter()
-        .map(|input_block| {
-            let mut decrypted = control_block.decrypt(nonce_and_counter);
-            decrypted
-                .iter_mut()
-                .enumerate()
-                .for_each(|(ix, block)| *block = input_block[ix] ^ *block);
-
-            nonce_and_counter[N - 1] = nonce_and_counter[N - 1].wrapping_add(W::from_u8(1));
-            decrypted
-        })
-        .collect()
+    ctr_encrypt(control_block, nonce_and_counter, input_blocks)
 }

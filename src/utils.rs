@@ -22,12 +22,15 @@ where
     from_fn(|_| W::random(&mut rng))
 }
 
-pub fn random_nonce_and_counter<W>() -> (W, W)
+pub fn random_nonce_and_counter<W, const N: usize>() -> [W; N]
 where
     W: Word,
 {
     let mut rng = thread_rng();
-    (W::random(&mut rng), W::ZERO)
+    from_fn(|i| match i {
+        n if n == N - 1 => W::ZERO,
+        _ => W::random(&mut rng),
+    })
 }
 
 pub fn pkcs7(buf: &mut Vec<u8>, bs: usize, pad: bool) -> Result<usize, Reason> {

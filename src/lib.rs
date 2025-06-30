@@ -4,7 +4,7 @@ pub use crate::{
     modes::OperationMode,
     rc5::RC5ControlBlock,
     types::{IntoBytes, Version, Word},
-    utils::{pkcs7, random_iv},
+    utils::{pkcs7, random_iv, random_nonce_and_counter},
 };
 
 mod modes;
@@ -44,34 +44,36 @@ where
     pub fn encrypt(&self, pt: &[u8], mode: OperationMode<W, N>) -> Result<Vec<u8>, Reason> {
         let mut pt = pt.to_vec();
 
-        let ct_blocks = match mode {
+        match mode {
             modes::OperationMode::ECB => {
                 let bs = self.block.block_size();
                 utils::pkcs7(&mut pt, bs, true)?;
                 let pt_blocks = self.block.generate_blocks(pt);
-                modes::ecb_encrypt(&self.block, pt_blocks)
+                let ct_blocks = modes::ecb_encrypt(&self.block, pt_blocks);
+
+                Ok(self.block.generate_bytes_stream(ct_blocks))
             }
             modes::OperationMode::CBC { iv } => {
                 let bs = self.block.block_size();
                 utils::pkcs7(&mut pt, bs, true)?;
                 let pt_blocks = self.block.generate_blocks(pt);
-                modes::cbc_encrypt(&self.block, iv, pt_blocks)
+                let ct_blocks = modes::cbc_encrypt(&self.block, iv, pt_blocks);
+
+                Ok(self.block.generate_bytes_stream(ct_blocks))
             }
             modes::OperationMode::CTR { nonce_and_counter } => {
-                let pt_blocks = self.block.generate_blocks(pt);
-                modes::ctr_encrypt(&self.block, nonce_and_counter, pt_blocks)
+                Ok(modes::ctr_encrypt(&self.block, nonce_and_counter, &pt))
             }
-        };
-
-        Ok(self.block.generate_bytes_stream(ct_blocks))
+        }
     }
 
     pub fn decrypt(&self, ct: &[u8], mode: OperationMode<W, N>) -> Result<Vec<u8>, Reason> {
         let ct = ct.to_vec();
-        let ct_blocks = self.block.generate_blocks(ct);
 
         let deciphered_bytes = match mode {
             OperationMode::ECB => {
+                let ct_blocks = self.block.generate_blocks(ct);
+
                 let bs = self.block.block_size();
                 let pt_blocks = modes::ecb_decrypt(&self.block, ct_blocks);
                 let mut pt_bytes = self.block.generate_bytes_stream(pt_blocks);
@@ -80,6 +82,8 @@ where
                 pt_bytes
             }
             OperationMode::CBC { iv } => {
+                let ct_blocks = self.block.generate_blocks(ct);
+
                 let bs = self.block.block_size();
                 let pt_blocks = modes::cbc_decrypt(&self.block, iv, ct_blocks);
                 let mut pt_bytes = self.block.generate_bytes_stream(pt_blocks);
@@ -88,8 +92,7 @@ where
                 pt_bytes
             }
             OperationMode::CTR { nonce_and_counter } => {
-                let pt_blocks = modes::ctr_decrypt(&self.block, nonce_and_counter, ct_blocks);
-                self.block.generate_bytes_stream(pt_blocks)
+                modes::ctr_decrypt(&self.block, nonce_and_counter, &ct)
             }
         };
 

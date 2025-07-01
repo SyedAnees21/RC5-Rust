@@ -1,5 +1,5 @@
 [package]
-name = "rc5-rs"
+name = "rc5-cli"
 version.workspace = true
 authors.workspace = true
 repository.workspace = true
@@ -8,8 +8,6 @@ publish.workspace = true
 rust-version.workspace = true
 
 [dependencies]
-rand = "0.8"
-thiserror = "2.0.12"
-
-[dev-dependencies]
-hex = "0.4.3"
+rc5-rs ={ path = "../rc5-rs" }
+clap = { version = "4.5.40", features = ["derive"]}
+anyhow = "1.0.98"

@@ -118,7 +118,7 @@ impl<W: Word> RC5Key<W> {
     {
         let key_bytes = raw.as_ref();
 
-        bail!(key_bytes.is_empty(), Reason::InvalidKey);
+        bail!(!key_bytes.is_empty(), Reason::InvalidKey);
         bail!(
             key_bytes.len() <= MAX_KEY_BYTES,
             Reason::KeyTooLong {

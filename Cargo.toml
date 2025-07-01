@@ -1,11 +1,12 @@
-[package]
-name = "rc5-rs"
-version = "0.1.0"
+[workspace]
+members = ["rc5-rs"]
+
+resolver = "2"
+
+[workspace.package]
+version = "3.0.14"
+authors = ["Syed-Anees <syedanees816@gmail.com>"]
+repository = "https://github.com/MetaGravity/Quark"
 edition = "2024"
-
-[dependencies]
-rand = "0.8"
-thiserror = "2.0.12"
-
-[dev-dependencies]
-hex = "0.4.3"
+publish = false
+rust-version = "1.85.0"

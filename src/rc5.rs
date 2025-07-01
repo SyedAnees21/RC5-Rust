@@ -142,10 +142,9 @@ fn expand_key<W: Word>(key: &[u8], rounds: usize) -> Vec<W> {
     let key_length = key.len().max(1);
 
     let expanded_length = (key_length + word_bytes - 1) / word_bytes;
-
     let mut key_words = vec![W::ZERO; expanded_length];
 
-    for index in (0..(key_length - 1)).rev() {
+    for index in (0..key_length).rev() {
         let ix = index / word_bytes;
         key_words[ix] = key_words[ix]
             .rotate_left(W::from_u8(8))

@@ -101,13 +101,21 @@ fn rc5_ctr() {
 
 #[test]
 fn rc5_ecb_32_bit() {
-    let key = [0u8;16];
+    let key: [u8; 16] = [
+        0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+    ];
+
     let rounds = 100;
     let plain_text = [0u32;2];
 
     let rc5_cipher = RC5ControlBlock::<u32>::new(key, rounds);
 
     let cipher_text = rc5_cipher.encrypt(plain_text);
+    let bytes = cipher_text.iter().flat_map(|word| word.to_le_bytes()).collect::<Vec<u8>>();
+    println!("{:0x?}", u64::from_bytes_slice(&bytes));
 
-    println!("{:0x?}", cipher_text);
+    let decipher_text = rc5_cipher.decrypt(cipher_text);
+    println!("{:0x?}", decipher_text);
+
 }

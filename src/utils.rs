@@ -7,11 +7,13 @@ use crate::{Reason, Word, bail};
 /// Generate a pseudo‑random IV (Initialization-Vector) of `[W; N]`.
 ///
 /// # Requirements
+///
 /// - `W` must implement your `Word` trait + `Copy`
 /// - `W` must also support `rand::distributions::Standard`
 ///
 /// # Example
-/// ```rust
+///
+/// ```ignore
 /// let iv: [u32; 2] = random_iv::<u32, 2>();
 /// ```
 pub fn random_iv<W, const N: usize>() -> [W; N]

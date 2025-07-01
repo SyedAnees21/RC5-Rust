@@ -1,4 +1,4 @@
-use crate::{BlockCipher, Version, Word};
+use crate::{BlockCipher, Reason, Version, Word, bail};
 
 pub struct RC5ControlBlock<W: Word> {
     version: Version,
@@ -7,13 +7,12 @@ pub struct RC5ControlBlock<W: Word> {
 }
 
 impl<W: Word> RC5ControlBlock<W> {
-    pub fn new<K>(key: K, rounds: usize) -> Self 
-    where 
-        K: AsRef<[u8]>
+    pub fn new<K>(key: K, rounds: usize) -> Result<Self, Reason>
+    where
+        K: AsRef<[u8]>,
     {
-        let key = RC5Key::from_raw(key, rounds);
-
-        Self {
+        let key = RC5Key::from_raw(key, rounds)?;
+        Ok(Self {
             rounds,
             version: Version::from_parametric_vector(vec![
                 1,
@@ -22,7 +21,7 @@ impl<W: Word> RC5ControlBlock<W> {
                 key.raw_len() as u8,
             ]),
             key,
-        }
+        })
     }
 
     #[inline]
@@ -113,23 +112,25 @@ pub struct RC5Key<W: Word> {
 }
 
 impl<W: Word> RC5Key<W> {
-    pub fn from_raw<K>(raw: K, rounds: usize) -> Self 
-    where 
-        K: AsRef<[u8]>
+    pub fn from_raw<K>(raw: K, rounds: usize) -> Result<Self, Reason>
+    where
+        K: AsRef<[u8]>,
     {
         let key_bytes = raw.as_ref();
 
-        assert!(
+        bail!(key_bytes.is_empty(), Reason::InvalidKey);
+        bail!(
             key_bytes.len() <= MAX_KEY_BYTES,
-            "[RC5-Error] Restricted key length {}, Max key length supported {}",
-            key_bytes.len(),
-            MAX_KEY_BYTES
+            Reason::KeyTooLong {
+                current: key_bytes.len(),
+                supported: MAX_KEY_BYTES
+            }
         );
 
-        Self {
+        Ok(Self {
             s_table: expand_key::<W>(key_bytes, rounds),
             raw_key: key_bytes.to_vec(),
-        }
+        })
     }
 
     pub fn raw_len(&self) -> usize {

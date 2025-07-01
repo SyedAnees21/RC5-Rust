@@ -2,7 +2,7 @@ use std::array::from_fn;
 
 use rand::thread_rng;
 
-use crate::{Reason, Word};
+use crate::{Reason, Word, bail};
 
 /// Generate a pseudo‑random IV (Initialization-Vector) of `[W; N]`.
 ///
@@ -42,23 +42,17 @@ pub fn pkcs7(buf: &mut Vec<u8>, bs: usize, pad: bool) -> Result<usize, Reason> {
     }
 
     let len = buf.len();
-
-    if len == 0 || len % bs != 0 {
-        return Err(Reason::Padding);
-    }
+    bail!(len == 0 || len % bs != 0, Reason::Padding);
 
     let pad_len = *buf.last().unwrap() as usize;
+    bail!(pad_len == 0 || pad_len > bs, Reason::Padding);
 
-    if pad_len == 0 || pad_len > bs {
-        return Err(Reason::Padding);
-    }
-
-    if !buf[len - pad_len..]
-        .iter()
-        .all(|element| *element == pad_len as u8)
-    {
-        return Err(Reason::Padding);
-    }
+    bail!(
+        !buf[len - pad_len..]
+            .iter()
+            .all(|element| *element == pad_len as u8),
+        Reason::Padding
+    );
 
     let padding = len - pad_len;
     buf.truncate(padding);
@@ -82,10 +76,5 @@ mod tests {
         let mut pt = vec![1_u8; 4];
         pkcs7(&mut pt, BS, true).unwrap();
         assert_eq!(pt, vec![1, 1, 1, 1, 4, 4, 4, 4]);
-
-        // let mut pt = vec![255_u8; 2];
-        // pkcs7(&mut pt, BS);
-        // dbg!(pt);
-        // // assert_eq!(pt, vec![1;4])
     }
 }

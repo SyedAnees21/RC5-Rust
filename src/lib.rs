@@ -1,4 +1,5 @@
 use std::marker::PhantomData;
+use thiserror::Error;
 
 pub use crate::{
     modes::OperationMode,
@@ -15,10 +16,16 @@ mod utils;
 #[cfg(test)]
 mod tests;
 
-#[derive(Debug)]
+#[derive(Error, Debug)]
 pub enum Reason {
+    #[error("Word size mis-match")]
     WordSize,
+    #[error("Invalid PKCS7 padding shceme")]
     Padding,
+    #[error("RC5 key is too long, supported: {supported:?} max, current: {current:?}")]
+    KeyTooLong { current: usize, supported: usize },
+    #[error("Invalid RC5-key, received an empty key")]
+    InvalidKey,
 }
 
 pub struct Cipher<B, W, const N: usize>
@@ -109,10 +116,21 @@ pub trait BlockCipher<W: Word, const N: usize> {
     fn decrypt(&self, ct: [W; N]) -> [W; N];
 }
 
-pub fn rc5_cipher<W>(key: impl AsRef<[u8]>, rounds: usize) -> Cipher<RC5ControlBlock<W>, W, 2>
+pub type RC5Cipher<W> = Cipher<RC5ControlBlock<W>, W, 2>;
+
+pub fn rc5_cipher<W>(key: impl AsRef<[u8]>, rounds: usize) -> Result<RC5Cipher<W>, Reason>
 where
     W: Word,
 {
-    let control_block = RC5ControlBlock::<W>::new(key, rounds);
-    Cipher::new(control_block)
+    let control_block = RC5ControlBlock::<W>::new(key, rounds)?;
+    Ok(Cipher::new(control_block))
+}
+
+#[macro_export]
+macro_rules! bail {
+    ($expression:expr, $err:expr) => {
+        if !$expression {
+            return Err($err);
+        }
+    };
 }

@@ -1,4 +1,6 @@
-use crate::{rc5_cipher, utils::random_nonce_and_counter, BlockCipher, OperationMode, RC5ControlBlock, Word};
+use crate::{
+    BlockCipher, RC5ControlBlock, Word, rc5_cipher, utils::random_nonce_and_counter,
+};
 
 #[test]
 fn encrypt_word_32() {
@@ -6,7 +8,7 @@ fn encrypt_word_32() {
     let pt = [0_u32; 2];
     let rounds = 12;
 
-    let rc5 = RC5ControlBlock::<u32>::new(key, rounds);
+    let rc5 = RC5ControlBlock::<u32>::new(key, rounds).unwrap();
     let cipher = rc5.encrypt(pt);
     println!("Cipher: {:?}", cipher);
 
@@ -25,7 +27,7 @@ fn rc5_cipher_contructor() {
     let key = vec![2_u8; 16];
     let rounds = 12;
 
-    let cipher = rc5_cipher::<u32>(&key, rounds);
+    let cipher = rc5_cipher::<u32>(&key, rounds).unwrap();
 
     let pt = b"Anees UR";
 
@@ -44,7 +46,7 @@ fn rc5_cipher_contructor() {
 fn rc5_cbc_test() {
     let key = [0_u8; 16];
     let rounds = 12;
-    let cipher = crate::rc5_cipher::<u32>(key.to_vec(), rounds);
+    let cipher = crate::rc5_cipher::<u32>(key.to_vec(), rounds).unwrap();
     let random_iv = crate::random_iv();
 
     let pt = b"Syed Anees Ur Rehman";
@@ -75,7 +77,7 @@ fn rc5_ctr() {
     let random_nonce = random_nonce_and_counter();
     let plain = b"This is RC5-CTR test";
 
-    let rc5_cipher = rc5_cipher::<u32>(key.to_vec(), rounds);
+    let rc5_cipher = rc5_cipher::<u32>(key.to_vec(), rounds).unwrap();
 
     let ct = rc5_cipher
         .encrypt(
@@ -102,20 +104,22 @@ fn rc5_ctr() {
 #[test]
 fn rc5_ecb_32_bit() {
     let key: [u8; 16] = [
-        0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+        0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00,
     ];
 
     let rounds = 100;
-    let plain_text = [0u32;2];
+    let plain_text = [0u32; 2];
 
-    let rc5_cipher = RC5ControlBlock::<u32>::new(key, rounds);
+    let rc5_cipher = RC5ControlBlock::<u32>::new(key, rounds).unwrap();
 
     let cipher_text = rc5_cipher.encrypt(plain_text);
-    let bytes = cipher_text.iter().flat_map(|word| word.to_le_bytes()).collect::<Vec<u8>>();
+    let bytes = cipher_text
+        .iter()
+        .flat_map(|word| word.to_le_bytes())
+        .collect::<Vec<u8>>();
     println!("{:0x?}", u64::from_bytes_slice(&bytes));
 
     let decipher_text = rc5_cipher.decrypt(cipher_text);
     println!("{:0x?}", decipher_text);
-
 }

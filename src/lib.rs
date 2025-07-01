@@ -135,4 +135,11 @@ macro_rules! bail {
             return Err($err);
         }
     };
+    ( $( $cond:expr , $err:expr ),+ $(,)? ) => {
+        $(
+            if $cond {
+                return Err($err);
+            }
+        )+
+    };
 }

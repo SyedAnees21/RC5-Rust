@@ -42,12 +42,13 @@ pub fn pkcs7(buf: &mut Vec<u8>, bs: usize, pad: bool) -> Result<usize, Reason> {
     }
 
     let len = buf.len();
-    bail!(len == 0 || len % bs != 0, Reason::Padding);
-
     let pad_len = *buf.last().unwrap() as usize;
-    bail!(pad_len == 0 || pad_len > bs, Reason::Padding);
 
     bail!(
+        len == 0 || len % bs != 0,
+        Reason::Padding,
+        pad_len == 0 || pad_len > bs,
+        Reason::Padding,
         !buf[len - pad_len..]
             .iter()
             .all(|element| *element == pad_len as u8),

@@ -1,5 +1,5 @@
 use crate::{
-    rc5_cipher, utils::random_nonce_and_counter, BlockCipher, RC5ControlBlock, Reason, Word
+    BlockCipher, RC5ControlBlock, Reason, Word, rc5_cipher, utils::random_nonce_and_counter,
 };
 
 #[test]
@@ -37,9 +37,7 @@ fn rc5_cipher_contructor() -> Result<(), Reason> {
 
     dbg!(ct.len(), ct.clone());
 
-    let de_pt = cipher
-        .decrypt(ct.as_ref(), crate::OperationMode::ECB)
-        ?;
+    let de_pt = cipher.decrypt(ct.as_ref(), crate::OperationMode::ECB)?;
 
     dbg!(str::from_utf8(&de_pt));
 
@@ -60,17 +58,13 @@ fn rc5_cbc_test() -> Result<(), Reason> {
     let d = cipher.decrypt(&ct, crate::OperationMode::ECB);
     dbg!(d);
 
-    let ct = cipher
-        .encrypt(
-            b"This is my cipher!!",
-            crate::OperationMode::CBC { iv: random_iv },
-        )
-        ?;
+    let ct = cipher.encrypt(
+        b"This is my cipher!!",
+        crate::OperationMode::CBC { iv: random_iv },
+    )?;
     dbg!(String::from_utf8_lossy(&ct));
     dbg!(String::from_utf8_lossy(
-        &cipher
-            .decrypt(&ct, crate::OperationMode::CBC { iv: random_iv })
-            ?
+        &cipher.decrypt(&ct, crate::OperationMode::CBC { iv: random_iv })?
     ));
 
     Ok(())
@@ -85,25 +79,21 @@ fn rc5_ctr() -> Result<(), Reason> {
 
     let rc5_cipher = rc5_cipher::<u32>(key.to_vec(), rounds)?;
 
-    let ct = rc5_cipher
-        .encrypt(
-            plain,
-            crate::OperationMode::CTR {
-                nonce_and_counter: random_nonce,
-            },
-        )
-        ?;
+    let ct = rc5_cipher.encrypt(
+        plain,
+        crate::OperationMode::CTR {
+            nonce_and_counter: random_nonce,
+        },
+    )?;
 
     dbg!(String::from_utf8_lossy(&ct));
 
-    let d_plain = rc5_cipher
-        .decrypt(
-            &ct,
-            crate::OperationMode::CTR {
-                nonce_and_counter: random_nonce,
-            },
-        )
-        ?;
+    let d_plain = rc5_cipher.decrypt(
+        &ct,
+        crate::OperationMode::CTR {
+            nonce_and_counter: random_nonce,
+        },
+    )?;
     dbg!(String::from_utf8(d_plain));
 
     Ok(())

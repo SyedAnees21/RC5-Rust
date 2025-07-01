@@ -104,6 +104,7 @@ impl<W: Word> BlockCipher<W, 2> for RC5ControlBlock<W> {
     }
 }
 
+const MAX_ROUNDS: usize = 255;
 const MAX_KEY_BYTES: usize = 255;
 
 pub struct RC5Key<W: Word> {
@@ -118,15 +119,16 @@ impl<W: Word> RC5Key<W> {
     {
         let key_bytes = raw.as_ref();
 
-        bail!(!key_bytes.is_empty(), Reason::InvalidKey);
+        bail!(key_bytes.is_empty(), Reason::InvalidKey);
         bail!(
-            key_bytes.len() <= MAX_KEY_BYTES,
+            key_bytes.len() > MAX_KEY_BYTES,
             Reason::KeyTooLong {
                 current: key_bytes.len(),
                 supported: MAX_KEY_BYTES
             }
         );
-
+        bail!(rounds > MAX_ROUNDS, Reason::InvalidRounds(rounds));
+        
         Ok(Self {
             s_table: expand_key::<W>(key_bytes, rounds),
             raw_key: key_bytes.to_vec(),

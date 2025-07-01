@@ -18,14 +18,16 @@ mod tests;
 
 #[derive(Error, Debug)]
 pub enum Reason {
-    #[error("Word size mis-match")]
+    #[error("[RC5-Error] Word size mis-match")]
     WordSize,
-    #[error("Invalid PKCS7 padding shceme")]
+    #[error("[RC5-Error] Invalid PKCS7 padding shceme")]
     Padding,
-    #[error("RC5 key is too long, supported: {supported:?} max, current: {current:?}")]
+    #[error("[RC5-Error] RC5 key is too long, supported: {supported:?} max, current: {current:?}")]
     KeyTooLong { current: usize, supported: usize },
-    #[error("Invalid RC5-key, received an empty key")]
+    #[error("[RC5-Error] Invalid RC5-key, received an empty key")]
     InvalidKey,
+    #[error("[RC5-Error] Rounds out-of-bounds, must be within 0-255, current{0}")]
+    InvalidRounds(usize),
 }
 
 pub struct Cipher<B, W, const N: usize>
@@ -129,7 +131,7 @@ where
 #[macro_export]
 macro_rules! bail {
     ($expression:expr, $err:expr) => {
-        if !$expression {
+        if $expression {
             return Err($err);
         }
     };

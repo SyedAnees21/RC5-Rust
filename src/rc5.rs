@@ -11,7 +11,7 @@ impl<W: Word> RC5ControlBlock<W> {
     where 
         K: AsRef<[u8]>
     {
-        let key = RC5Key::<W>::from_raw(key, rounds);
+        let key = RC5Key::from_raw(key, rounds);
 
         Self {
             rounds,
@@ -49,7 +49,7 @@ impl<W: Word> BlockCipher<W, 2> for RC5ControlBlock<W> {
         word_a = word_a.wrapping_add(expanded_key[0]);
         word_b = word_b.wrapping_add(expanded_key[1]);
 
-        for r in 1..self.rounds() {
+        for r in 1..=self.rounds() {
             word_a = ((word_a ^ word_b).rotate_left(word_b)).wrapping_add(expanded_key[2 * r]);
             word_b = ((word_b ^ word_a).rotate_left(word_a)).wrapping_add(expanded_key[2 * r + 1]);
         }
@@ -61,7 +61,7 @@ impl<W: Word> BlockCipher<W, 2> for RC5ControlBlock<W> {
         let expanded_key = self.s_table();
         let [mut word_a, mut word_b] = ct;
 
-        for r in (1..self.rounds()).rev() {
+        for r in (1..=self.rounds()).rev() {
             word_b = (word_b
                 .wrapping_sub(expanded_key[2 * r + 1])
                 .rotate_right(word_a))

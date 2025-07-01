@@ -1,5 +1,3 @@
-use std::iter::Enumerate;
-
 use crate::{BlockCipher, Word};
 
 pub enum OperationMode<W: Word, const N: usize> {

@@ -73,7 +73,7 @@ pub fn pkcs7(buf: &mut Vec<u8>, bs: usize, pad: bool) -> Result<usize, Reason> {
 #[cfg(test)]
 mod tests {
     use super::pkcs7;
-    use crate::{Word, random_iv};
+    use crate::Word;
 
     #[test]
     fn padding_fixed_blocks() {

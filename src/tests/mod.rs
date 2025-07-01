@@ -1,4 +1,4 @@
-use crate::{BlockCipher, RC5ControlBlock, Word, rc5_cipher, utils::random_nonce_and_counter};
+use crate::{rc5_cipher, utils::random_nonce_and_counter, BlockCipher, OperationMode, RC5ControlBlock, Word};
 
 #[test]
 fn encrypt_word_32() {
@@ -97,4 +97,17 @@ fn rc5_ctr() {
         )
         .unwrap();
     dbg!(String::from_utf8(d_plain));
+}
+
+#[test]
+fn rc5_ecb_32_bit() {
+    let key = [0u8;16];
+    let rounds = 100;
+    let plain_text = [0u32;2];
+
+    let rc5_cipher = RC5ControlBlock::<u32>::new(key, rounds);
+
+    let cipher_text = rc5_cipher.encrypt(plain_text);
+
+    println!("{:0x?}", cipher_text);
 }

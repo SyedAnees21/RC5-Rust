@@ -21,8 +21,9 @@ pub enum Reason {
     Padding(String),
 }
 
-pub struct Cipher<B, W: Word, const N: usize>
+pub struct Cipher<B, W, const N: usize>
 where
+    W: Word,
     B: BlockCipher<W, N>,
 {
     block: B,

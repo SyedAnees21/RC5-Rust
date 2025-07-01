@@ -1,4 +1,4 @@
-use crate::{BlockCipher, IntoBytes, Version, Word};
+use crate::{BlockCipher, Version, Word};
 
 pub struct RC5ControlBlock<W: Word> {
     version: Version,
@@ -7,7 +7,10 @@ pub struct RC5ControlBlock<W: Word> {
 }
 
 impl<W: Word> RC5ControlBlock<W> {
-    pub fn new(key: impl IntoBytes, rounds: usize) -> Self {
+    pub fn new<K>(key: K, rounds: usize) -> Self 
+    where 
+        K: AsRef<[u8]>
+    {
         let key = RC5Key::<W>::from_raw(key, rounds);
 
         Self {
@@ -110,8 +113,11 @@ pub struct RC5Key<W: Word> {
 }
 
 impl<W: Word> RC5Key<W> {
-    pub fn from_raw(raw: impl IntoBytes, rounds: usize) -> Self {
-        let key_bytes = raw.bytes();
+    pub fn from_raw<K>(raw: K, rounds: usize) -> Self 
+    where 
+        K: AsRef<[u8]>
+    {
+        let key_bytes = raw.as_ref();
 
         assert!(
             key_bytes.len() <= MAX_KEY_BYTES,
@@ -121,8 +127,8 @@ impl<W: Word> RC5Key<W> {
         );
 
         Self {
-            s_table: expand_key::<W>(&raw.bytes(), rounds),
-            raw_key: key_bytes,
+            s_table: expand_key::<W>(key_bytes, rounds),
+            raw_key: key_bytes.to_vec(),
         }
     }
 

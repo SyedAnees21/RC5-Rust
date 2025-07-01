@@ -25,7 +25,7 @@ fn rc5_cipher_contructor() {
     let key = vec![2_u8; 16];
     let rounds = 12;
 
-    let cipher = rc5_cipher::<u32>(key, rounds);
+    let cipher = rc5_cipher::<u32>(&key, rounds);
 
     let pt = b"Anees UR";
 
@@ -77,15 +77,24 @@ fn rc5_ctr() {
 
     let rc5_cipher = rc5_cipher::<u32>(key.to_vec(), rounds);
 
-    let ct = rc5_cipher.encrypt(
-        plain,
-        crate::OperationMode::CTR {
-            nonce_and_counter: random_nonce,
-        },
-    ).unwrap();
+    let ct = rc5_cipher
+        .encrypt(
+            plain,
+            crate::OperationMode::CTR {
+                nonce_and_counter: random_nonce,
+            },
+        )
+        .unwrap();
 
     dbg!(String::from_utf8_lossy(&ct));
 
-    let d_plain=  rc5_cipher.decrypt(&ct, crate::OperationMode::CTR { nonce_and_counter: random_nonce }).unwrap();
+    let d_plain = rc5_cipher
+        .decrypt(
+            &ct,
+            crate::OperationMode::CTR {
+                nonce_and_counter: random_nonce,
+            },
+        )
+        .unwrap();
     dbg!(String::from_utf8(d_plain));
 }

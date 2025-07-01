@@ -1,6 +1,5 @@
 use rand::Rng;
 
-
 pub struct Version(Vec<u8>);
 
 impl Version {
@@ -104,48 +103,3 @@ macro_rules! impl_word_for_prim {
 }
 
 impl_word_for_prim!(u16, u32, u64);
-
-pub trait IntoBytes {
-    fn bytes(&self) -> Vec<u8>;
-}
-
-macro_rules! into_bytes_string_types {
-    ($($t:ident),*) => {
-        $(
-            impl IntoBytes for $t {
-                #[inline]
-                fn bytes(&self) -> Vec<u8> {
-                    self.as_bytes().to_vec()
-                }
-            }
-        )*
-    }
-}
-
-macro_rules! into_bytes_for_prims {
-    ($($t:ident),*) => {
-        $(
-            impl IntoBytes for $t {
-                #[inline]
-                fn bytes(&self) -> Vec<u8> {
-                    self.to_ne_bytes().to_vec()
-                }
-            }
-        )*
-    }
-}
-
-into_bytes_string_types!(String, str);
-into_bytes_for_prims!(u8, u32, u64, u128);
-
-impl IntoBytes for Vec<u8> {
-    fn bytes(&self) -> Vec<u8> {
-        self.clone()
-    }
-}
-
-impl IntoBytes for [u8] {
-    fn bytes(&self) -> Vec<u8> {
-        self.to_vec()
-    }
-}

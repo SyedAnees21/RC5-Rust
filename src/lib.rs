@@ -3,7 +3,7 @@ use std::marker::PhantomData;
 pub use crate::{
     modes::OperationMode,
     rc5::RC5ControlBlock,
-    types::{IntoBytes, Version, Word},
+    types::{Version, Word},
     utils::{pkcs7, random_iv, random_nonce_and_counter},
 };
 
@@ -108,7 +108,7 @@ pub trait BlockCipher<W: Word, const N: usize> {
     fn decrypt(&self, ct: [W; N]) -> [W; N];
 }
 
-pub fn rc5_cipher<W>(key: impl IntoBytes, rounds: usize) -> Cipher<RC5ControlBlock<W>, W, 2>
+pub fn rc5_cipher<W>(key: impl AsRef<[u8]>, rounds: usize) -> Cipher<RC5ControlBlock<W>, W, 2>
 where
     W: Word,
 {

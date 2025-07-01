@@ -6,4 +6,6 @@ edition = "2024"
 [dependencies]
 rand = "0.8"
 thiserror = "2.0.12"
+
+[dev-dependencies]
 hex = "0.4.3"

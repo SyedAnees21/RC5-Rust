@@ -108,9 +108,14 @@ where
 
         Ok(deciphered_bytes)
     }
+
+    pub fn control_block(&self) -> &B {
+        &self.block
+    }
 }
 
 pub trait BlockCipher<W: Word, const N: usize> {
+    fn control_block_version(&self) -> String;
     fn block_size(&self) -> usize;
     fn generate_blocks(&self, pt: Vec<u8>) -> Vec<[W; N]>;
     fn generate_bytes_stream(&self, blocks: Vec<[W; N]>) -> Vec<u8>;

@@ -2,6 +2,8 @@ use crate::{
     BlockCipher, RC5ControlBlock, Reason, Word, rc5_cipher, utils::random_nonce_and_counter,
 };
 
+mod ecb;
+
 #[test]
 fn encrypt_word_32() -> Result<(), Reason> {
     let key = vec![2_u8; 16];

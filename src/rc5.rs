@@ -99,6 +99,10 @@ impl<W: Word> BlockCipher<W, 2> for RC5ControlBlock<W> {
         stream
     }
 
+    fn control_block_version(&self) -> String {
+        self.parametric_version()
+    }
+    
     fn block_size(&self) -> usize {
         W::BYTES * 2
     }

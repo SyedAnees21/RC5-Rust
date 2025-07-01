@@ -44,25 +44,20 @@ pub fn pkcs7(buf: &mut Vec<u8>, bs: usize, pad: bool) -> Result<usize, Reason> {
     let len = buf.len();
 
     if len == 0 || len % bs != 0 {
-        return Err(Reason::Padding(
-            "Either buffer is empty or not a multiple of block size".into(),
-        ));
+        return Err(Reason::Padding);
     }
 
     let pad_len = *buf.last().unwrap() as usize;
 
     if pad_len == 0 || pad_len > bs {
-        return Err(Reason::Padding(format!(
-            "Pad length must be within 1-Block-size bounds, pad-length={}",
-            pad_len
-        )));
+        return Err(Reason::Padding);
     }
 
     if !buf[len - pad_len..]
         .iter()
         .all(|element| *element == pad_len as u8)
     {
-        return Err(Reason::Padding("Inconsistent pad elements".into()));
+        return Err(Reason::Padding);
     }
 
     let padding = len - pad_len;

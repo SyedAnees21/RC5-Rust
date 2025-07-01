@@ -18,7 +18,7 @@ mod tests;
 #[derive(Debug)]
 pub enum Reason {
     WordSize,
-    Padding(String),
+    Padding,
 }
 
 pub struct Cipher<B, W, const N: usize>

@@ -1,3 +1,39 @@
+//! # RC5-RS Cipher Library
+//!
+//! This crate provides a generic, parametric implementation of the RC5 block cipher,
+//! supporting variable word sizes (`u16`, `u32`, `u64`) and multiple modes of operation
+//! (ECB, CBC, CTR). It includes PKCS#7 padding helpers, IV/nonce generators, and
+//! convenient parsing of hex‐encoded parameters.
+//!
+//! ## Features
+//!
+//! - Variable word length: `16-bit`, `32-bit`, `64-bit`.
+//! - Various operation modes:
+//!     - ECB
+//!     - CBC
+//!     - CTR
+//! - Strict padding using PKCS#7 standard.
+//! - Pseudo-random IV/nonce generation utitlities , see [random_iv], [random_nonce_and_counter].
+//! - Hex‐string parsing for IVs and nonces.
+//!
+//! ## Example
+//!
+//! ```ignore
+//! use rc5_rs::{rc5_cipher, OperationMode};
+//!
+//! // Build a 32‐bit word RC5 cipher with 12 rounds:
+//! let cipher = rc5_cipher::<u32>(b"mykey", 12).unwrap();
+//!
+//! let plaintext = b"Secret message";
+//!
+//! // Encrypt in CBC mode with a random IV:
+//! let iv = rc5_rs::random_iv::<u32, 2>();
+//! let ciphertext = cipher.encrypt(plaintext, OperationMode::CBC { iv }).unwrap();
+//!
+//! // Decrypt using the same IV:
+//! let recovered = cipher.decrypt(&ciphertext, OperationMode::CBC { iv }).unwrap();
+//! assert_eq!(recovered, plaintext);
+//! ```
 use hex::FromHexError;
 use std::marker::PhantomData;
 use thiserror::Error;
@@ -17,6 +53,8 @@ mod utils;
 #[cfg(test)]
 mod tests;
 
+/// Errors returned by the Cipher as reasons during
+/// cipher operations.
 #[derive(Error, Debug)]
 pub enum Reason {
     #[error("[RC5-Error] Word size mis-match")]
@@ -37,6 +75,18 @@ pub enum Reason {
     NonceInvalid(usize),
 }
 
+/// # Cipher
+///
+/// A high‐level cipher wrapper type that contains a control block
+/// It provides byte‐stream handling and cryptographic operation
+/// modes dispatch.
+///
+/// ## Generics
+///
+/// - `B`: Control-Block, e.g. [RC5ControlBlock<W>].
+/// - `W`: Underlying type which implements a [Word] trait.
+/// - `N`: number of words per block (for RC5, always 2).
+///
 pub struct Cipher<B, W, const N: usize>
 where
     W: Word,
@@ -51,6 +101,14 @@ where
     W: Word,
     B: BlockCipher<W, N>,
 {
+    /// Create a new `Cipher` wrapping the given block‐cipher instance.
+    ///
+    /// ## Example
+    ///
+    /// ```ignore
+    /// let rc5_control_block = RC5ControlBlock::<u32>::new("SECRET_KEY", 12).unwrap();
+    /// let cipher = Cipher::new(rc5_control_block);
+    /// ```
     pub fn new(block: B) -> Self {
         Self {
             block,
@@ -58,6 +116,20 @@ where
         }
     }
 
+    /// Encrypt plain-text bytes under selected cryptographic operation mode
+    /// and returns cipher-text bytes.
+    ///
+    /// This takes the plain-text as their bytes reference. It supports various
+    /// encryption flows based on operation modes such as:
+    ///
+    /// - `ECB` : Electronic-code-book mode.
+    /// - `CBC` : Cipher-block-chain mode.
+    /// - `CTR` : Counter mode.
+    ///
+    /// Encryption might fail for various reasons, either due to padding or etc,
+    /// that's why this function is fallible.
+    ///
+    /// It returns ciphered bytes, or [Reason] of failure as an err.
     pub fn encrypt(&self, pt: &[u8], mode: OperationMode<W, N>) -> Result<Vec<u8>, Reason> {
         let mut pt = pt.to_vec();
 
@@ -84,6 +156,20 @@ where
         }
     }
 
+    /// Decrypt cipher-text bytes under selected cryptographic operation mode
+    /// and returns plain-text bytes.
+    ///
+    /// This takes the plain-text as their bytes reference. It supports various
+    /// encryption flows based on operation modes such as:
+    ///
+    /// - `ECB` : Electronic-code-book mode.
+    /// - `CBC` : Cipher-block-chain mode.
+    /// - `CTR` : Counter mode.
+    ///
+    /// Decryption might fail for various reasons, either due to padding or etc,
+    /// that's why this function is fallible.
+    ///
+    /// It returns plain bytes, or [Reason] of failure as an err.
     pub fn decrypt(&self, ct: &[u8], mode: OperationMode<W, N>) -> Result<Vec<u8>, Reason> {
         let ct = ct.to_vec();
 
@@ -116,6 +202,10 @@ where
         Ok(deciphered_bytes)
     }
 
+    /// Parse an IV from a hex‐encoded string, validating length = block size.
+    /// Parsing may fail if the hex-string is not equal to blcok size.
+    ///
+    /// Returns a result contain iv block or failure reason as an err.
     pub fn parse_iv_from_hex<V>(&self, iv_hex: V) -> Result<[W; N], Reason>
     where
         V: AsRef<[u8]>,
@@ -131,6 +221,11 @@ where
             .unwrap())
     }
 
+    /// Parses nonce and counter from their respective
+    /// hex-encoded strings.
+    ///
+    /// Parse may fail if the hex-string is not equal to
+    /// word-size.
     pub fn parse_nonce_counter_from_hex<V>(
         &self,
         nonce_hex: V,
@@ -156,18 +251,50 @@ where
             .unwrap())
     }
 
+    /// Returns an immutable access to control-block of block-cipher
+    /// underlying the cipher.
     pub fn control_block(&self) -> &B {
         &self.block
     }
 }
 
+/// A core trait that any block-cipher must implement to work with [Cipher].
+/// 
+/// Generics in this trait defines:
+/// 
+/// - `W`: A variable length unit type which implements [Word] trait.
+/// - `N`: A generic constand for number of words per block.
+/// 
+/// This trait coerces some of the necessary functionalities for block-cipher.  
 pub trait BlockCipher<W: Word, const N: usize> {
+    /// Human‐readable version tag, mostly a parametric version.
+    /// e.g. in RC5-block-cipher  “RC5-32/12/16”.
     fn control_block_version(&self) -> String;
+
+    /// Base block-size in bytes for a block-cipher.
     fn block_size(&self) -> usize;
+
+    /// Word-szie in bytes per block for a block-cipher.
     fn word_size(&self) -> usize;
+
+    /// Split a byte‐vector into a `Vec` of length-`N` word blocks.
+    /// More generally, it creates a list of blocks from a stream of
+    /// plain bytes.
     fn generate_blocks(&self, pt: Vec<u8>) -> Vec<[W; N]>;
+
+    /// Generates a stream of bytes from a list of blocks. More 
+    /// specefically from `N` word blocks list generates byte-vector.
+    /// Its counterfiet of generate_blocks method.
     fn generate_bytes_stream(&self, blocks: Vec<[W; N]>) -> Vec<u8>;
+
+    /// Raw encryption, encrypt a single `[W;N]` block.
+    /// 
+    /// Returns a cipher `[W;N]` block
     fn encrypt(&self, pt: [W; N]) -> [W; N];
+    
+    /// Raw decryption, decrypt a single `[W;N]` block.
+    /// 
+    /// Returns a plain-text `[W;N]` block
     fn decrypt(&self, ct: [W; N]) -> [W; N];
 }
 

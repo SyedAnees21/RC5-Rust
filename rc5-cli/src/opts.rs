@@ -1,5 +1,7 @@
-use clap::{Parser, Subcommand};
-use rc5_rs::{rc5_cipher, RC5Cipher};
+use std::path::PathBuf;
+
+use clap::{Parser, Subcommand, ValueEnum};
+use rc5_rs::{RC5Cipher, rc5_cipher};
 
 const ABOUT: &str = "A command-line RC5 encryption/decryption tool";
 const LONG_ABOUT: &str = "\
@@ -20,12 +22,40 @@ pub struct Opts {
     #[clap(short, long)]
     pub rounds: usize,
 
+    /// Source file path to load the encrypted/
+    /// decrypted file.
+    #[clap(short, long)]
+    pub file: PathBuf,
+
+    /// Destination file path to store the encrypted/
+    /// decrypted file.
+    #[clap(short, long)]
+    pub dest: Option<PathBuf>,
+
     /// Which operation-mode to use for encryption/
     /// decryption.
     #[command(subcommand)]
     pub mode: Mode,
+
+    /// What action to perform either to encrypt or
+    /// to decrypt
+    #[clap(short, long)]
+    pub action: Action,
 }
 
+impl Opts {
+    pub fn dest_path(&self) -> PathBuf {
+        if let Some(path) = &self.dest {
+            return path.clone();
+        }
+
+        let mut path = PathBuf::new();
+        path.push("./");
+        path.push("processed.txt");
+
+        path
+    }
+}
 #[derive(Debug, Subcommand)]
 pub enum Mode {
     /// Electronic-Code-Book operation mode
@@ -48,4 +78,10 @@ pub enum Mode {
         #[clap(short, long)]
         counter: Option<String>,
     },
+}
+
+#[derive(Debug, Clone, ValueEnum)]
+pub enum Action {
+    Encrypt,
+    Decrypt,
 }

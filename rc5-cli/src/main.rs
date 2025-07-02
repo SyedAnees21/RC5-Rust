@@ -1,6 +1,11 @@
+use std::{
+    io::{Read, Write},
+    option,
+};
+
 use clap::Parser;
 use opts::{Mode, Opts};
-use rc5_rs::{BlockCipher, random_iv, random_nonce_and_counter, rc5_cipher};
+use rc5_rs::{BlockCipher, OperationMode, random_iv, random_nonce_and_counter, rc5_cipher};
 
 mod opts;
 
@@ -29,26 +34,54 @@ macro_rules! get_cipher {
 
 fn main() -> anyhow::Result<()> {
     let options = Opts::parse();
+
+    let mut text = vec![];
+    std::fs::File::open(&options.file)?.read_to_end(&mut text)?;
+
     let cipher = get_cipher!(options);
 
-    match options.mode {
-        Mode::ECB => todo!(),
-        Mode::CBC { iv } => {
+    let mut processed = match options.mode {
+        Mode::ECB => match options.action {
+            opts::Action::Encrypt => cipher.encrypt(&text, OperationMode::ECB)?,
+            opts::Action::Decrypt => cipher.decrypt(&text, OperationMode::ECB)?,
+        },
+        Mode::CBC { ref iv } => {
             let iv = match iv {
                 Some(iv_hex) => cipher.parse_iv_from_hex(iv_hex)?,
                 None => random_iv(),
             };
+
+            match options.action {
+                opts::Action::Encrypt => cipher.encrypt(&text, OperationMode::CBC { iv })?,
+                opts::Action::Decrypt => cipher.decrypt(&text, OperationMode::CBC { iv })?,
+            }
         }
-        Mode::CTR { nonce, counter } => {
+        Mode::CTR {
+            ref nonce,
+            ref counter,
+        } => {
             let nonce_and_counter = match (nonce, counter) {
                 (Some(nonce_hex), Some(counter_hex)) => {
                     cipher.parse_nonce_counter_from_hex(nonce_hex, counter_hex)?
                 }
                 (_, _) => random_nonce_and_counter(),
             };
+
+            match options.action {
+                opts::Action::Encrypt => {
+                    cipher.encrypt(&text, OperationMode::CTR { nonce_and_counter })?
+                }
+                opts::Action::Decrypt => {
+                    cipher.decrypt(&text, OperationMode::CTR { nonce_and_counter })?
+                }
+            }
         }
-    }
-    println!("{:#?}", cipher.control_block().parametric_version());
-    // println!("Hello, world!");
+    };
+
+    let dest = options.dest_path();
+    let mut f = std::fs::File::create(dest)?;
+    f.write_all(&mut processed)?;
+    f.flush()?;
+
     Ok(())
 }

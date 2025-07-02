@@ -1,3 +1,4 @@
+use hex::FromHexError;
 use std::marker::PhantomData;
 use thiserror::Error;
 
@@ -28,6 +29,12 @@ pub enum Reason {
     InvalidKey,
     #[error("[RC5-Error] Rounds out-of-bounds, must be within 0-255, current{0}")]
     InvalidRounds(usize),
+    #[error("Unable to parse Hex-String {0}")]
+    ParseHex(#[from] FromHexError),
+    #[error("IV hex string should be equal to block size {0} bytes")]
+    IVinvalid(usize),
+    #[error("Nonce/Counter hex string should be equal to word-size {0} bytes")]
+    NonceInvalid(usize),
 }
 
 pub struct Cipher<B, W, const N: usize>
@@ -109,6 +116,46 @@ where
         Ok(deciphered_bytes)
     }
 
+    pub fn parse_iv_from_hex<V>(&self, iv_hex: V) -> Result<[W; N], Reason>
+    where
+        V: AsRef<[u8]>,
+    {
+        let iv_bytes = hex::decode(iv_hex)?;
+        let bs = self.control_block().block_size();
+        bail!(iv_bytes.len() != bs, Reason::IVinvalid(bs));
+
+        Ok(*self
+            .control_block()
+            .generate_blocks(iv_bytes)
+            .last()
+            .unwrap())
+    }
+
+    pub fn parse_nonce_counter_from_hex<V>(
+        &self,
+        nonce_hex: V,
+        counter_hex: V,
+    ) -> Result<[W; N], Reason>
+    where
+        V: AsRef<[u8]>,
+    {
+        let mut nonce_bytes = hex::decode(nonce_hex)?;
+        let counter_bytes = hex::decode(counter_hex)?;
+        let ws = self.control_block().word_size();
+
+        bail!(
+            nonce_bytes.len() != ws && counter_bytes.len() != ws,
+            Reason::NonceInvalid(ws)
+        );
+        nonce_bytes.extend_from_slice(&counter_bytes);
+
+        Ok(*self
+            .control_block()
+            .generate_blocks(nonce_bytes)
+            .last()
+            .unwrap())
+    }
+
     pub fn control_block(&self) -> &B {
         &self.block
     }
@@ -117,6 +164,7 @@ where
 pub trait BlockCipher<W: Word, const N: usize> {
     fn control_block_version(&self) -> String;
     fn block_size(&self) -> usize;
+    fn word_size(&self) -> usize;
     fn generate_blocks(&self, pt: Vec<u8>) -> Vec<[W; N]>;
     fn generate_bytes_stream(&self, blocks: Vec<[W; N]>) -> Vec<u8>;
     fn encrypt(&self, pt: [W; N]) -> [W; N];

@@ -1,4 +1,5 @@
 use clap::{Parser, Subcommand};
+use rc5_rs::{rc5_cipher, RC5Cipher};
 
 const ABOUT: &str = "A command-line RC5 encryption/decryption tool";
 const LONG_ABOUT: &str = "\
@@ -12,17 +13,17 @@ pub struct Opts {
     /// Secret-key to be used by RC5 control block
     /// for encryption.
     #[clap(short, long)]
-    secret: String,
+    pub secret: String,
 
     /// Number of encryption/decryption iterations
     /// to perform.
     #[clap(short, long)]
-    rounds: usize,
+    pub rounds: usize,
 
     /// Which operation-mode to use for encryption/
     /// decryption.
     #[command(subcommand)]
-    mode: Mode,
+    pub mode: Mode,
 }
 
 #[derive(Debug, Subcommand)]
@@ -45,6 +46,6 @@ pub enum Mode {
         nonce: Option<String>,
         /// An arbitrary initial counter value.
         #[clap(short, long)]
-        counter: Option<u64>,
+        counter: Option<String>,
     },
 }

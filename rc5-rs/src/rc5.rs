@@ -106,6 +106,10 @@ impl<W: Word> BlockCipher<W, 2> for RC5ControlBlock<W> {
     fn block_size(&self) -> usize {
         W::BYTES * 2
     }
+
+    fn word_size(&self) -> usize {
+        W::BYTES
+    }
 }
 
 const MAX_ROUNDS: usize = 255;

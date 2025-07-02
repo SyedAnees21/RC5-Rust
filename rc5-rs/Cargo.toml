@@ -10,4 +10,4 @@ rust-version.workspace = true
 [dependencies]
 rand = "0.8"
 thiserror = "2.0.12"
-hex = "0.4.3"
+hex = { workspace = true }

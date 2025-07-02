@@ -102,7 +102,7 @@ impl<W: Word> BlockCipher<W, 2> for RC5ControlBlock<W> {
     fn control_block_version(&self) -> String {
         self.parametric_version()
     }
-    
+
     fn block_size(&self) -> usize {
         W::BYTES * 2
     }
@@ -136,7 +136,7 @@ impl<W: Word> RC5Key<W> {
             }
         );
         bail!(rounds > MAX_ROUNDS, Reason::InvalidRounds(rounds));
-        
+
         Ok(Self {
             s_table: expand_key::<W>(key_bytes, rounds),
             raw_key: key_bytes.to_vec(),

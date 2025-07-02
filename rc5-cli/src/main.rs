@@ -1,11 +1,7 @@
-use std::{
-    io::{Read, Write},
-    option,
-};
-
 use clap::Parser;
 use opts::{Mode, Opts};
-use rc5_rs::{BlockCipher, OperationMode, random_iv, random_nonce_and_counter, rc5_cipher};
+use rc5_rs::{OperationMode, random_iv, random_nonce_and_counter, rc5_cipher};
+use std::io::Write;
 
 mod opts;
 
@@ -34,9 +30,7 @@ macro_rules! get_cipher {
 
 fn main() -> anyhow::Result<()> {
     let options = Opts::parse();
-
-    let mut text = vec![];
-    std::fs::File::open(&options.file)?.read_to_end(&mut text)?;
+    let text = std::fs::read(&options.file)?;
 
     let cipher = get_cipher!(options);
 

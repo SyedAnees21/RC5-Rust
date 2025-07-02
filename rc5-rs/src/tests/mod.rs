@@ -1,8 +1,8 @@
 use crate::{BlockCipher, RC5ControlBlock, Reason};
 
-mod ecb;
 mod cbc;
 mod ctr;
+mod ecb;
 
 macro_rules! rc5_control_block_vectors {
     ($( $fn_name:ident: ( $key:expr , $rounds:expr , $exp_cipher:expr , $exp_dec:expr) ),*$(,)?) => {

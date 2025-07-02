@@ -1,7 +1,5 @@
-use std::path::PathBuf;
-
 use clap::{Parser, Subcommand, ValueEnum};
-use rc5_rs::{RC5Cipher, rc5_cipher};
+use std::path::PathBuf;
 
 const ABOUT: &str = "A command-line RC5 encryption/decryption tool";
 const LONG_ABOUT: &str = "\

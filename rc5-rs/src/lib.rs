@@ -300,6 +300,10 @@ pub trait BlockCipher<W: Word, const N: usize> {
 
 pub type RC5Cipher<W> = Cipher<RC5ControlBlock<W>, W, 2>;
 
+/// Construct a new RC5 cipher from a raw key and round count.
+/// 
+/// This is a help function which initializes Cipher with RC5
+/// control-bock.
 pub fn rc5_cipher<W>(key: impl AsRef<[u8]>, rounds: usize) -> Result<RC5Cipher<W>, Reason>
 where
     W: Word,
@@ -308,6 +312,8 @@ where
     Ok(Cipher::new(control_block))
 }
 
+/// Helper macro to bail out early with a `Reason` error 
+/// if any condition is true.
 #[macro_export]
 macro_rules! bail {
     ($expression:expr, $err:expr) => {

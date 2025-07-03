@@ -12,6 +12,7 @@ default = ["word-32"]
 word-16 = []
 word-32 = []
 word-64 = []
+word-128 = []
 
 [dependencies]
 rc5-rs ={ path = "../rc5-rs" }

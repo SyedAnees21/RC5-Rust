@@ -23,6 +23,10 @@ macro_rules! get_cipher {
         {
             cipher = rc5_cipher::<u64>($opts.secret.as_str(), $opts.rounds)?;
         }
+        #[cfg(feature = "word-128")]
+        {
+            cipher = rc5_cipher::<u128>($opts.secret.as_str(), $opts.rounds)?;
+        }
 
         cipher
     }};

@@ -97,6 +97,10 @@ macro_rules! magic_consts {
         const P: u64 = 0xb7e151628aed2a6b;
         const Q: u64 = 0x9e3779b97f4a7c15;
     };
+    (u128) => {
+        const P: u128 = 0x9E3779B97F4A7C15F39CC0605CEDC835;
+        const Q: u128 = 0xB7E151628AED2A6ABF7158809CF4F3C7;
+    }
 }
 
 macro_rules! impl_word_for_prim {
@@ -151,4 +155,4 @@ macro_rules! impl_word_for_prim {
     }
 }
 
-impl_word_for_prim!(u16, u32, u64);
+impl_word_for_prim!(u16, u32, u64, u128);

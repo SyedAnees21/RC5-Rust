@@ -10,6 +10,7 @@ repository = "https://github.com/SyedAnees21/RC5-Rust"
 edition = "2024"
 publish = false
 rust-version = "1.85.0"
+readme = "README.md"
 
 [workspace.dependencies]
 hex = "0.4.3"

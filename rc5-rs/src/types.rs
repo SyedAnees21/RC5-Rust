@@ -1,12 +1,35 @@
 use rand::Rng;
 
+/// # RC5 version identifier
+/// 
+/// It represents RC5 control block parameters. These parameters are
+/// defined as follows:
+/// 
+/// 1. Algorithm version (1 for RC5)
+/// 2. Word-size in bits
+/// 3. Number of rounds.
+/// 4. Key length in bytes.
+/// 
+/// This is how these parameters are arranged in version string:
+/// 
+/// RC5-v<`Algorithm version`>/<`Word-size`>/<`Rounds`>/<`Key-length`>
+/// 
+/// This can be useful when asserting what parametric version of RC5 to
+/// use for certain applications.
 pub struct Version(Vec<u8>);
 
 impl Version {
+    /// Construct a new `Version` from a 4‑element parameter vector.
+    ///
+    /// Expects the vector to be exactly four bytes:
+    /// `[algorithm, word_bits, rounds, key_bytes]`.
     pub fn from_parametric_vector(params: Vec<u8>) -> Self {
         Self(params)
     }
 
+    /// Render the RC5 version string in the form: `RC5-vA/B/C/D`.
+    ///
+    /// Where A,B,C,D correspond to the four parameters passed to `new`.
     pub fn version(&self) -> String {
         let params = &self.0;
         format!(
@@ -16,22 +39,48 @@ impl Version {
     }
 }
 
+/// A core trait to define a word in `N-sized` blocks of a block cipher. This
+/// word must support arithmatic and binary operations required for cryptographic
+/// functions.
 pub trait Word: Clone + Copy + std::ops::BitXor<Output = Self> {
+    /// A constant zero value for a `Word` type.
     const ZERO: Self;
+
+    /// Number of bytes in this word
     const BYTES: usize;
+
+    /// Magic constant `P` represented by this word to
+    /// be used in RC5 key expansion.
     const P: Self;
+
+    /// Magic constant `Q` represented by this word to
+    /// be used in RC5 key expansion.
     const Q: Self;
 
+    /// Cast a 8-bit value to this word type.
     fn from_u8(val: u8) -> Self;
 
+    /// Parse this word from a little‐endian byte slice of length `BYTES`.
+    ///
+    /// Returns `None` if the slice length is not equal to `Word::BYTES`
     fn from_bytes_slice(slice: &[u8]) -> Option<Self>;
+
+    /// Serialize this word to a little‐endian bytes list.
     fn to_bytes_slice(&self) -> Vec<u8>;
 
+    /// Generate a random word using the given RNG.
     fn random<R: Rng + ?Sized>(rng: &mut R) -> Self;
 
+    /// Wrapped addition
     fn wrapping_add(self, val: Self) -> Self;
+    
+    /// Wrapped subtraction
     fn wrapping_sub(self, val: Self) -> Self;
+    
+    /// Left bitwise rotation
     fn rotate_left(self, bits: Self) -> Self;
+    
+    /// Right bitwise rotation
     fn rotate_right(self, bits: Self) -> Self;
 }
 

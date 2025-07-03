@@ -84,8 +84,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ## Testing
 
-This library is tested against some of the standard test vectors and round trip tests. These tests are define [here](./rc5-rs/src/tests/).
-Standard test vector are picked from [here](https://github.com/cantora/avr-crypto-lib/blob/master/testvectors/Rc5-128-64.verified.test-vectors).
+This library is tested against some of the standard test vectors and round trip tests. These tests are define [here](./rc5-block/src/tests/mod.rs). Standard test vector are picked from [here](https://github.com/cantora/avr-crypto-lib/blob/master/testvectors/Rc5-128-64.verified.test-vectors).
 
 ---
 

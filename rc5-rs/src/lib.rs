@@ -18,7 +18,7 @@
 //!
 //! ## Example
 //!
-//! ```ignore
+//! ```rust
 //! use rc5_rs::{rc5_cipher, OperationMode};
 //!
 //! // Build a 32‐bit word RC5 cipher with 12 rounds:
@@ -40,7 +40,7 @@
 //! This crate provide some extra utilities such as, pseudo-random iv and nonce
 //! generation and PKCS#7 padding function:
 //!
-//! ```ignore
+//! ```rust
 //! // generate a pseudo-random iv-block of block size [u32;2]
 //! let iv = rc5_rs::random_iv::<u32, 2>();
 //!
@@ -99,7 +99,7 @@ pub enum Reason {
 ///
 /// ## Generics
 ///
-/// - `B`: Control-Block, e.g. [RC5ControlBlock<W>].
+/// - `B`: Control-Block, e.g. [`RC5ControlBlock<W>`].
 /// - `W`: Underlying type which implements a [Word] trait.
 /// - `N`: number of words per block (for RC5, always 2).
 ///
@@ -121,7 +121,9 @@ where
     ///
     /// ## Example
     ///
-    /// ```ignore
+    /// ```rust
+    /// use rc5_rs::{RC5ControlBlock, Cipher};
+    /// 
     /// let rc5_control_block = RC5ControlBlock::<u32>::new("SECRET_KEY", 12).unwrap();
     /// let cipher = Cipher::new(rc5_control_block);
     /// ```

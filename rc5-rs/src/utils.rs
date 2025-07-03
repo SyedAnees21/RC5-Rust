@@ -13,8 +13,9 @@ use crate::{Reason, Word, bail};
 ///
 /// # Example
 ///
-/// ```ignore
-/// let iv: [u32; 2] = random_iv::<u32, 2>();
+/// ```rust
+/// // generates a pseudo-random iv of block size [u32;2]
+/// let iv: [u32; 2] = rc5_rs::random_iv::<u32, 2>();
 /// ```
 pub fn random_iv<W, const N: usize>() -> [W; N]
 where
@@ -37,8 +38,8 @@ where
 ///
 /// # Examples
 ///
-/// ```ignore
-/// let nc: [u32; 2] = random_nonce_and_counter::<u32, 2>();
+/// ```rust
+/// let nc: [u32; 2] = rc5_rs::random_nonce_and_counter::<u32, 2>();
 /// assert_eq!(nc[1], 0); // counter initialized to zero
 /// ```
 pub fn random_nonce_and_counter<W, const N: usize>() -> [W; N]
@@ -63,16 +64,16 @@ where
 ///
 /// # Examples
 ///
-/// ```ignore
+/// ```rust
 /// let mut data = b"HELLO".to_vec();      // length 5
-/// let rem = pkcs7(&mut data, 8, true).unwrap();
+/// let rem = rc5_rs::pkcs7(&mut data, 8, true).unwrap();
 /// assert_eq!(rem, 5 % 8);                // 5
 /// assert_eq!(data.len(), 8);             // padded to 8
 /// assert_eq!(&data[5..], &[3,3,3]);       // 3 bytes of 0x03
 ///
 /// // Unpadding example:
 /// let mut data = data.clone();
-/// let pad_len = pkcs7(&mut data, 8, false).unwrap();
+/// let pad_len = rc5_rs::pkcs7(&mut data, 8, false).unwrap();
 /// assert_eq!(pad_len, 3);
 /// assert_eq!(data, b"HELLO");
 /// ```

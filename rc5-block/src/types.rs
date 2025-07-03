@@ -100,7 +100,7 @@ macro_rules! magic_consts {
     (u128) => {
         const P: u128 = 0x9E3779B97F4A7C15F39CC0605CEDC835;
         const Q: u128 = 0xB7E151628AED2A6ABF7158809CF4F3C7;
-    }
+    };
 }
 
 macro_rules! impl_word_for_prim {

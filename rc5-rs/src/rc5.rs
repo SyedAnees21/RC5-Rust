@@ -182,13 +182,13 @@ impl<W: Word> RC5Key<W> {
 }
 
 /// RC5 key expansion function.
-/// 
+///
 /// Converts a user-supplied key into an expanded S-table using the RC5 mixing algorithm
-/// in little-endian byte order. This table will be used for all encryption and decryption 
+/// in little-endian byte order. This table will be used for all encryption and decryption
 /// operations.
-/// 
+///
 /// see more: [RC5-paper](https://www.grc.com/r&d/rc5.pdf)
-/// 
+///
 /// # Parameters
 /// - `key`: raw key bytes.
 /// - `rounds`: number of RC5 rounds.
@@ -225,7 +225,7 @@ fn expand_key<W: Word>(key: &[u8], rounds: usize) -> Vec<W> {
     let (mut a, mut b) = (W::ZERO, W::ZERO);
 
     // Key mixing, this is done by interlacing key words with
-    // each other. 
+    // each other.
     for _ in 0..(3 * table_size.max(expanded_length)) {
         a = s_table[i]
             .wrapping_add(a)

@@ -1,19 +1,19 @@
 use rand::Rng;
 
 /// # RC5 version identifier
-/// 
+///
 /// It represents RC5 control block parameters. These parameters are
 /// defined as follows:
-/// 
+///
 /// 1. Algorithm version (1 for RC5)
 /// 2. Word-size in bits
 /// 3. Number of rounds.
 /// 4. Key length in bytes.
-/// 
+///
 /// This is how these parameters are arranged in version string:
-/// 
+///
 /// RC5-v<`Algorithm version`>/<`Word-size`>/<`Rounds`>/<`Key-length`>
-/// 
+///
 /// This can be useful when asserting what parametric version of RC5 to
 /// use for certain applications.
 pub struct Version(Vec<u8>);
@@ -73,13 +73,13 @@ pub trait Word: Clone + Copy + std::ops::BitXor<Output = Self> {
 
     /// Wrapped addition
     fn wrapping_add(self, val: Self) -> Self;
-    
+
     /// Wrapped subtraction
     fn wrapping_sub(self, val: Self) -> Self;
-    
+
     /// Left bitwise rotation
     fn rotate_left(self, bits: Self) -> Self;
-    
+
     /// Right bitwise rotation
     fn rotate_right(self, bits: Self) -> Self;
 }

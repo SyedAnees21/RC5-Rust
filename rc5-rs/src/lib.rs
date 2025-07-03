@@ -67,11 +67,11 @@ pub enum Reason {
     InvalidKey,
     #[error("[RC5-Error] Rounds out-of-bounds, must be within 0-255, current{0}")]
     InvalidRounds(usize),
-    #[error("Unable to parse Hex-String {0}")]
+    #[error("[RC5-Error] Unable to parse Hex-String {0}")]
     ParseHex(#[from] FromHexError),
-    #[error("IV hex string should be equal to block size {0} bytes")]
+    #[error("[RC5-Error] IV hex string should be equal to block size {0} bytes")]
     IVinvalid(usize),
-    #[error("Nonce/Counter hex string should be equal to word-size {0} bytes")]
+    #[error("[RC5-Error] Nonce/Counter hex string should be equal to word-size {0} bytes")]
     NonceInvalid(usize),
 }
 
@@ -259,12 +259,12 @@ where
 }
 
 /// A core trait that any block-cipher must implement to work with [Cipher].
-/// 
+///
 /// Generics in this trait defines:
-/// 
+///
 /// - `W`: A variable length unit type which implements [Word] trait.
 /// - `N`: A generic constand for number of words per block.
-/// 
+///
 /// This trait coerces some of the necessary functionalities for block-cipher.  
 pub trait BlockCipher<W: Word, const N: usize> {
     /// Human‐readable version tag, mostly a parametric version.
@@ -282,18 +282,18 @@ pub trait BlockCipher<W: Word, const N: usize> {
     /// plain bytes.
     fn generate_blocks(&self, pt: Vec<u8>) -> Vec<[W; N]>;
 
-    /// Generates a stream of bytes from a list of blocks. More 
+    /// Generates a stream of bytes from a list of blocks. More
     /// specefically from `N` word blocks list generates byte-vector.
     /// Its counterfiet of generate_blocks method.
     fn generate_bytes_stream(&self, blocks: Vec<[W; N]>) -> Vec<u8>;
 
     /// Raw encryption, encrypt a single `[W;N]` block.
-    /// 
+    ///
     /// Returns a cipher `[W;N]` block
     fn encrypt(&self, pt: [W; N]) -> [W; N];
-    
+
     /// Raw decryption, decrypt a single `[W;N]` block.
-    /// 
+    ///
     /// Returns a plain-text `[W;N]` block
     fn decrypt(&self, ct: [W; N]) -> [W; N];
 }
@@ -301,7 +301,7 @@ pub trait BlockCipher<W: Word, const N: usize> {
 pub type RC5Cipher<W> = Cipher<RC5ControlBlock<W>, W, 2>;
 
 /// Construct a new RC5 cipher from a raw key and round count.
-/// 
+///
 /// This is a help function which initializes Cipher with RC5
 /// control-bock.
 pub fn rc5_cipher<W>(key: impl AsRef<[u8]>, rounds: usize) -> Result<RC5Cipher<W>, Reason>
@@ -312,7 +312,7 @@ where
     Ok(Cipher::new(control_block))
 }
 
-/// Helper macro to bail out early with a `Reason` error 
+/// Helper macro to bail out early with a `Reason` error
 /// if any condition is true.
 #[macro_export]
 macro_rules! bail {

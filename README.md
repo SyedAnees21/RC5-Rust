@@ -1,4 +1,4 @@
-# rc5-rs
+# RC5-Block
 
 [![crates.io](https://img.shields.io/crates/v/rc5-rs.svg)](https://crates.io/crates/rc5-rs)  
 [![docs.rs](https://docs.rs/rc5-rs/badge.svg)](https://docs.rs/rc5-rs)  
@@ -40,13 +40,13 @@ Add to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-rc5-rs = "0.1"
+rc5-block = "0.1"
 ```
 
 And start using it in your application
 
 ```rust
-use rc5_rs::{
+use rc5_block::{
     rc5_cipher,                     // builder
     OperationMode,                  // enum for mode
     random_iv,                      // for CBC

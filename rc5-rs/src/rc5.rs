@@ -199,7 +199,7 @@ fn expand_key<W: Word>(key: &[u8], rounds: usize) -> Vec<W> {
     let word_bytes = W::BYTES;
     let key_length = key.len().max(1);
 
-    let expanded_length = (key_length + word_bytes - 1) / word_bytes;
+    let expanded_length = key_length.div_ceil(word_bytes);
     let mut key_words = vec![W::ZERO; expanded_length];
 
     // Packing the raw bytes ino list of word-szie

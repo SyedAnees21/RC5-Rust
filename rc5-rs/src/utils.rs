@@ -83,7 +83,7 @@ pub fn pkcs7(buf: &mut Vec<u8>, bs: usize, pad: bool) -> Result<usize, Reason> {
     if pad {
         let rem = buf.len() % bs;
         let pad_count = if rem > 0 { bs - rem } else { bs };
-        buf.extend(std::iter::repeat(pad_count as u8).take(pad_count));
+        buf.extend(std::iter::repeat_n(pad_count as u8, pad_count));
         return Ok(rem);
     }
 

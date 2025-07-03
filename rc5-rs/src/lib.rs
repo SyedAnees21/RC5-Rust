@@ -123,7 +123,7 @@ where
     ///
     /// ```rust
     /// use rc5_rs::{RC5ControlBlock, Cipher};
-    /// 
+    ///
     /// let rc5_control_block = RC5ControlBlock::<u32>::new("SECRET_KEY", 12).unwrap();
     /// let cipher = Cipher::new(rc5_control_block);
     /// ```

@@ -1,5 +1,5 @@
 [workspace]
-members = [ "rc5-cli","rc5-rs"]
+members = ["rc5-cli", "rc5-rs"]
 
 resolver = "2"
 

@@ -1,8 +1,8 @@
 # RC5-Block
 
-[![crates.io](https://img.shields.io/crates/v/rc5-rs.svg)](https://crates.io/crates/rc5-rs)  
-[![docs.rs](https://docs.rs/rc5-rs/badge.svg)](https://docs.rs/rc5-rs)  
-[![license](https://img.shields.io/crates/l/rc5-rs.svg)](./LICENSE)
+[![crates.io](https://img.shields.io/crates/v/rc5-rs.svg)](https://crates.io/crates/rc5-block)  
+[![docs.rs](https://docs.rs/rc5-rs/badge.svg)](https://docs.rs/rc5-block/)  
+[![license](https://img.shields.io/crates/l/rc5-block.svg)](./LICENSE)
 
 A pure‑Rust implementation of the RC5 block cipher, supporting variable word‑sizes (`u16`, `u32`, `u64`, `u128`),  
 PKCS#7 padding and the three classic modes of operation: **ECB**, **CBC**, and **CTR**.

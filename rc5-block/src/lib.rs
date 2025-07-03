@@ -19,7 +19,7 @@
 //! ## Example
 //!
 //! ```rust
-//! use rc5_rs::{rc5_cipher, OperationMode};
+//! use rc5_block::{rc5_cipher, OperationMode};
 //!
 //! // Build a 32‐bit word RC5 cipher with 12 rounds:
 //! let cipher = rc5_cipher::<u32>(b"mykey", 12).unwrap();
@@ -27,7 +27,7 @@
 //! let plaintext = b"Secret message";
 //!
 //! // Encrypt in CBC mode with a random IV:
-//! let iv = rc5_rs::random_iv::<u32, 2>();
+//! let iv = rc5_block::random_iv::<u32, 2>();
 //! let ciphertext = cipher.encrypt(plaintext, OperationMode::CBC { iv }).unwrap();
 //!
 //! // Decrypt using the same IV:
@@ -42,13 +42,13 @@
 //!
 //! ```rust
 //! // generate a pseudo-random iv-block of block size [u32;2]
-//! let iv = rc5_rs::random_iv::<u32, 2>();
+//! let iv = rc5_block::random_iv::<u32, 2>();
 //!
 //! // generate a pseudo-random nonce and counter initialized to zero
 //! // of block size [u32;2]
 //! // Note: Higher part of this block conatins nonce and lower part
 //! // contains counter with initial value set to zero.
-//! let nonce_counter = rc5_rs::random_nonce_and_counter::<u32, 2>();
+//! let nonce_counter = rc5_block::random_nonce_and_counter::<u32, 2>();
 //! ```
 use hex::FromHexError;
 use std::marker::PhantomData;
@@ -122,7 +122,7 @@ where
     /// ## Example
     ///
     /// ```rust
-    /// use rc5_rs::{RC5ControlBlock, Cipher};
+    /// use rc5_block::{RC5ControlBlock, Cipher};
     ///
     /// let rc5_control_block = RC5ControlBlock::<u32>::new("SECRET_KEY", 12).unwrap();
     /// let cipher = Cipher::new(rc5_control_block);

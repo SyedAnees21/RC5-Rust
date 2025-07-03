@@ -6,3 +6,9 @@ can operate in different operation modes.
 
 
 Supports variable word sizes (`16`, `32`, `64`‑bit), and the classic modes **ECB**, **CBC**, and **CTR** with PKCS#7 padding (where required).
+
+
+- **Supported Word sizes**:  
+  - `word-16` → 16‑bit words  
+  - `word-32` → 32‑bit words (default)  
+  - `word-64` → 64‑bit words  

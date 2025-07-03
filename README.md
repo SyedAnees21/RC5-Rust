@@ -4,7 +4,7 @@
 [![docs.rs](https://docs.rs/rc5-rs/badge.svg)](https://docs.rs/rc5-rs)  
 [![license](https://img.shields.io/crates/l/rc5-rs.svg)](./LICENSE)
 
-A pure‑Rust implementation of the RC5 block cipher, supporting variable word‑sizes (`u16`, `u32`, `u64`),  
+A pure‑Rust implementation of the RC5 block cipher, supporting variable word‑sizes (`u16`, `u32`, `u64`, `u128`),  
 PKCS#7 padding and the three classic modes of operation: **ECB**, **CBC**, and **CTR**.
 
 This implementation is inspired by the original paper on [RC5-Block-Cipher](https://www.grc.com/r&d/rc5.pdf) by
@@ -16,10 +16,11 @@ Ronald L. Rivest.
 
 This library is generic over word-size per block and suppoerts multiple operation modes.
 
-- **Word sizes** via Cargo features:  
-  - `word-16` → 16‑bit words  
-  - `word-32` → 32‑bit words (default)  
-  - `word-64` → 64‑bit words  
+- **Supported Word sizes**:  
+  - 16‑bit  
+  - 32‑bit   
+  - 64‑bit 
+  - 128 bit 
 
 - **Modes**  
   - **ECB**: Electronic Codebook  
@@ -27,7 +28,7 @@ This library is generic over word-size per block and suppoerts multiple operatio
   - **CTR**: Counter mode (no padding)
 
 - **Helpers**  
-  - PKCS#7 padding/unpadding  
+  - PKCS#7 padding/unpadding  (Strict)
   - Random IV / nonce+counter generators  
   - Parse hex strings for IV and nonce  
 

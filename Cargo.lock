@@ -209,22 +209,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "rc5-block"
+version = "0.1.0"
+dependencies = [
+ "hex",
+ "rand",
+ "thiserror",
+]
+
+[[package]]
 name = "rc5-cli"
 version = "0.1.0"
 dependencies = [
  "anyhow",
  "clap",
  "hex",
- "rc5-rs",
-]
-
-[[package]]
-name = "rc5-rs"
-version = "0.1.0"
-dependencies = [
- "hex",
- "rand",
- "thiserror",
+ "rc5-block",
 ]
 
 [[package]]

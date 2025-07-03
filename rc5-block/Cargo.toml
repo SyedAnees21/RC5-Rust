@@ -1,5 +1,5 @@
 [package]
-name = "rc5-rs"
+name = "rc5-block"
 license = "MIT OR Apache-2.0"
 description = "Rust implementation of RC5 Block cipher with ECB, CBC and CTR operation modes."
 keywords = ["crypto", "rc5", "block-cipher", "Encryption", "Decryption"]

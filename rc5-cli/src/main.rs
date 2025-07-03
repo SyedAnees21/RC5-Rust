@@ -1,6 +1,6 @@
 use clap::Parser;
 use opts::{Mode, Opts};
-use rc5_rs::{OperationMode, random_iv, random_nonce_and_counter, rc5_cipher};
+use rc5_block::{OperationMode, random_iv, random_nonce_and_counter, rc5_cipher};
 use std::io::Write;
 
 mod opts;

@@ -27,8 +27,9 @@ where
 /// Generate a pseudo‑random block of `N` words where the last word is zero
 /// (suitable for use as a CTR‐mode nonce + counter seed).
 ///
-/// - The first `N-1` words are random (`W::random`).
-/// - The last word is initialized to `W::ZERO` so you can increment it per block.
+/// - The first `N-1` words are random (`W::random`), which is a `nonce`.
+/// - The last word is initialized to `W::ZERO`, which is a `counter` so
+///   you can increment it per block.
 ///
 /// # Panics
 ///

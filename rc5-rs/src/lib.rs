@@ -34,6 +34,22 @@
 //! let recovered = cipher.decrypt(&ciphertext, OperationMode::CBC { iv }).unwrap();
 //! assert_eq!(recovered, plaintext);
 //! ```
+//!
+//! # Utilities
+//!
+//! This crate provide some extra utilities such as, pseudo-random iv and nonce
+//! generation and PKCS#7 padding function:
+//!
+//! ```ignore
+//! // generate a pseudo-random iv-block of block size [u32;2]
+//! let iv = rc5_rs::random_iv::<u32, 2>();
+//!
+//! // generate a pseudo-random nonce and counter initialized to zero
+//! // of block size [u32;2]
+//! // Note: Higher part of this block conatins nonce and lower part
+//! // contains counter with initial value set to zero.
+//! let nonce_counter = rc5_rs::random_nonce_and_counter::<u32, 2>();
+//! ```
 use hex::FromHexError;
 use std::marker::PhantomData;
 use thiserror::Error;
